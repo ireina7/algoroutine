@@ -7,7 +7,7 @@ use std::{
     ops::{Coroutine, CoroutineState},
 };
 
-use goroutine_rs::{go, handler::Handler as _};
+use algoroutine::{go, handler::Handler as _};
 
 fn main() {
     type EE = Effect<i32>;
@@ -100,7 +100,7 @@ impl<S> Project<S> for Option<S> {
     }
 }
 
-impl<F, I> goroutine_rs::handler::Handler<I, F> for Handler<I>
+impl<F, I> algoroutine::handler::Handler<I, F> for Handler<I>
 where
     F: Coroutine<I, Yield = Effect<i32>>,
     F::Return: From<Option<i32>>,

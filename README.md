@@ -1,9 +1,8 @@
-# goroutine
-Light-weight algebraic goroutine in rust
+# algoroutine
+Light-weight *algebraic effect* (algebraic goroutine) in Rust.
 
 Using `go!` macro just as Haskell's do notation while we use algebraic effects
-instead of monads.
-
+instead of monads to avoid monad's composition issue.
 Only zero-shot algebraic effect based on coroutine is supported.
 Therefore we need nightly compiler to transform code.
 
@@ -33,3 +32,9 @@ let mut handler: Handler<Option<i32>> = Handler::new();
 let ans = handler.handle(None, logic);
 dbg!(ans);
 ```
+See [examples/logging_and_states](./examples/logging_and_state.rs) for details.
+
+## Fun facts
+- `goroutine` is cool
+- `algebraic effect` is cool
+- `algebraic goroutine (algoroutine)` is probably bad ;)
