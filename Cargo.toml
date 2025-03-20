@@ -2,5 +2,11 @@
 name = "algoroutine"
 version = "0.1.0"
 edition = "2024"
+license-file = "./LICENSE"
+description = "Light-weight algebraic effect(algebraic goroutine) in Rust"
+readme = "./README.md"
+repository = "https://github.com/ireina7/algoroutine"
+keywords = ["functional", "algebraic-effect", "coroutine", "side-effect", "async", "io"]
+
 
 [dependencies]
