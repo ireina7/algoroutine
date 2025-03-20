@@ -13,6 +13,11 @@ Therefore we need nightly compiler to transform code.
 
 ## Example
 ```rust
+let prepare = #[coroutine] |_: Option<i32>| {
+    go!(Log("preparing".into()) => Effect);
+    return ResultCode(0);
+};
+
 let logic = #[coroutine] |_: Option<i32>| {
     go!(Log("start".into()) => Effect); // inject Log into Effect type
 
@@ -20,7 +25,7 @@ let logic = #[coroutine] |_: Option<i32>| {
     let s = go!(State::Get);
     go!(Log(format!("Got {:?}", s)));
 
-    let res = go!(log0, None);
+    let res = go!(prepare, None);
     if !res.is_ok() {
         go!(Log(format!("error code: {}", res.0)));
     }

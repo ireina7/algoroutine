@@ -12,9 +12,9 @@ use algoroutine::{go, handler::Handler as _};
 fn main() {
     type EE = Effect<i32>;
 
-    let log0 = #[coroutine]
+    let prepare = #[coroutine]
     |_: Option<i32>| {
-        go!(Log("log0".into()) => Effect);
+        go!(Log("preparing".into()) => Effect);
         return ResultCode(0);
     };
 
@@ -26,7 +26,7 @@ fn main() {
         let s = go!(State::Get);
         go!(Log(format!("Got {:?}", s)));
 
-        let res = go!(log0, None);
+        let res = go!(prepare, None);
         if !res.is_ok() {
             go!(Log(format!("error code: {}", res.0)));
         }
