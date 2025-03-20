@@ -6,7 +6,7 @@ license-file = "./LICENSE"
 description = "Light-weight algebraic effect(algebraic goroutine) in Rust"
 readme = "./README.md"
 repository = "https://github.com/ireina7/algoroutine"
-keywords = ["functional", "algebraic-effect", "coroutine", "side-effect", "async", "io"]
+keywords = ["functional", "algebraic-effect", "coroutine", "side-effect", "async"]
 
 
 [dependencies]
