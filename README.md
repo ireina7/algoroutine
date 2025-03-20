@@ -44,3 +44,8 @@ See [examples/logging_and_states](./examples/logging_and_state.rs) for details.
 - `goroutine` and `go` syntax is cool (but golang's type system is terrible)
 - `algebraic effect` is cool
 - `algebraic goroutine (algoroutine)` is probably bad ;)
+
+## TODO
+- [ ] Macros for declare effect types
+- [ ] More auto-injective traits
+- [ ] Remove boxes for better performance

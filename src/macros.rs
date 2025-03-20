@@ -21,6 +21,19 @@ macro_rules! go {
             }
         }
     }};
+    ($f:expr, $arg:expr => $eff:tt) => {{
+        let mut pinned = Box::pin($f);
+        let mut injs = $arg.into();
+        loop {
+            let res = pinned.as_mut().resume(injs);
+            match res {
+                CoroutineState::Yielded(eff) => {
+                    injs = yield $eff::from(eff);
+                }
+                CoroutineState::Complete(v) => break v,
+            }
+        }
+    }};
     ($eff:tt, $f:expr, $arg:expr) => {{
         let mut pinned = Box::pin($f);
         let mut injs = $arg;
