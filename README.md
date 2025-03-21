@@ -12,6 +12,7 @@ Therefore we need nightly compiler to transform code.
 - `Coroutine.and_then` to chain operations.
 
 ## Example
+### Logging and mutable states
 ```rust
 let prepare = #[coroutine] |_: Option<i32>| {
     go!(Log("preparing".into()) => Effect);
@@ -39,6 +40,32 @@ dbg!(ans);
 ```
 To inject effects, we don't use `coproduct`, just `From`!
 See [examples/logging_and_states](./examples/logging_and_state.rs) for details.
+
+### Exception
+```rust
+let div = #[coroutine]
+|(a, b): (i32, i32)| {
+    if b == 0 {
+        go!(Exception::Raise("divided by 0".into()) => Exception);
+    }
+    return a / b;
+};
+
+let logic = #[coroutine]
+|_: Context| {
+    println!("Start!");
+    let ans = go!(div, (4, 0) => Exception); // will stop executing rest continuation
+    println!("div result: {}", ans);
+    println!("end.");
+    return 0;
+};
+
+let mut handler = ExceptionHandler::new();
+let ans = handler.handle(Context::None, logic);
+dbg!(ans);
+```
+See [examples/exception](./examples/exception.rs) for details.
+
 
 ## Fun facts
 - `goroutine` and `go` syntax is cool (but golang's type system is terrible)
