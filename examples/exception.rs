@@ -11,8 +11,7 @@ use algoroutine::{go, handler::Handler};
 
 fn main() {
     let div = #[coroutine]
-    |ctx: Context| {
-        let (a, b) = ctx.unwrap();
+    |(a, b): (i32, i32)| {
         if b == 0 {
             go!(Exception::Raise("divided by 0".into()) => Exception);
         }
@@ -71,9 +70,9 @@ impl From<Option<(i32, i32)>> for Context {
     }
 }
 
-impl From<(i32, i32)> for Context {
-    fn from(value: (i32, i32)) -> Self {
-        Context::Some(value)
+impl From<Context> for (i32, i32) {
+    fn from(value: Context) -> Self {
+        value.unwrap()
     }
 }
 
