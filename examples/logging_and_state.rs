@@ -10,8 +10,6 @@ use std::{
 use algoroutine::{go, handler::Handler as _};
 
 fn main() {
-    type EE = Effect<i32>;
-
     let prepare = #[coroutine]
     |_: Option<i32>| {
         go!(Log("preparing".into()) => Effect);
@@ -20,7 +18,7 @@ fn main() {
 
     let logic = #[coroutine]
     |_: Option<i32>| {
-        go!(Log("start".into()) => EE);
+        go!(Log("start".into()) => Effect);
 
         go!(State::Set(Some(9)));
         let s = go!(State::Get);

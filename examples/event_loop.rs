@@ -21,8 +21,10 @@ fn main() {
     || {
         println!("begin...");
 
-        println!("first let's wait for 3 secs...");
-        go!(Timeout::of(time::Duration::from_secs(3)) => Effect);
+        for _ in 0..5 {
+            println!("let's wait for 1 secs...");
+            go!(Timeout::of(time::Duration::from_secs(1)) => Effect);
+        }
 
         println!("next we try to wait 5 secs...");
         go!(Timeout::of(time::Duration::from_secs(5)));
