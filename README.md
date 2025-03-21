@@ -66,6 +66,24 @@ dbg!(ans);
 ```
 See [examples/exception](./examples/exception.rs) for details.
 
+### Event loop
+```rust
+let logic = #[coroutine]
+|| {
+    println!("begin...");
+
+    println!("first let's wait for 3 secs...");
+    go!(Timeout::of(time::Duration::from_secs(3)) => Effect);
+
+    println!("next we try to wait 5 secs...");
+    go!(Timeout::of(time::Duration::from_secs(5)));
+
+    println!("end.");
+};
+```
+See [examples/event_loop](./examples/event_loop.rs) for details.
+
+
 
 ## Fun facts
 - `goroutine` and `go` syntax is cool (but golang's type system is terrible)
