@@ -3,11 +3,14 @@
 #![feature(stmt_expr_attributes)]
 
 use std::{
-    marker::PhantomData,
     ops::{Coroutine, CoroutineState},
+    pin::Pin,
 };
 
-use algoroutine::{go, handler::Handler};
+use algoroutine::{
+    go,
+    handler::{Consumer, OneStep, SyncConsumer},
+};
 
 fn main() {
     let div = #[coroutine]
@@ -27,8 +30,8 @@ fn main() {
         return 0;
     };
 
-    let mut handler = ExceptionHandler::new();
-    let ans = handler.handle(Context::None, logic);
+    let mut handler = SyncConsumer::from(ExceptionHandler::new());
+    let ans = handler.consume(logic, Context::None);
     dbg!(ans);
 }
 
@@ -37,13 +40,11 @@ pub enum Exception {
     Raise(String),
 }
 
-struct ExceptionHandler<I> {
-    _data: PhantomData<I>,
-}
+struct ExceptionHandler {}
 
-impl<I> ExceptionHandler<I> {
+impl ExceptionHandler {
     fn new() -> Self {
-        Self { _data: PhantomData }
+        Self {}
     }
 }
 
@@ -76,26 +77,21 @@ impl From<Context> for (i32, i32) {
     }
 }
 
-impl<I, F> algoroutine::handler::Handler<I, F> for ExceptionHandler<I>
+impl<R> algoroutine::handler::Step<Exception, R, i32> for ExceptionHandler
 where
-    F: Coroutine<I, Yield = Exception>,
-    F::Return: From<i32>,
-    I: From<Option<(i32, i32)>>,
+    R: From<Option<(i32, i32)>>,
 {
-    fn handle(&mut self, _: I, continuation: F) -> F::Return {
-        let mut state: Option<CoroutineState<F::Yield, F::Return>> = None;
+    fn step<F>(&mut self, continuation: Pin<&mut F>, _: R) -> OneStep<R, i32>
+    where
+        F: Coroutine<R, Yield = Exception, Return = i32> + 'static,
+    {
         let mut pinned = Box::pin(continuation);
-        loop {
-            match state {
-                None => {
-                    state = Some(pinned.as_mut().resume(I::from(None)));
-                    continue;
-                }
-                Some(CoroutineState::Complete(n)) => break n,
-                Some(CoroutineState::Yielded(Exception::Raise(msg))) => {
-                    eprintln!("Exception: {}", msg);
-                    break F::Return::from(-1); // early stop
-                }
+        let state = pinned.as_mut().resume(R::from(None));
+        match state {
+            CoroutineState::Complete(n) => OneStep::Return(n),
+            CoroutineState::Yielded(Exception::Raise(msg)) => {
+                eprintln!("Exception: {}", msg);
+                OneStep::Return(-1) // early stop
             }
         }
     }

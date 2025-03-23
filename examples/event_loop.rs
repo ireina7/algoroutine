@@ -14,7 +14,7 @@ use std::{
     time,
 };
 
-use algoroutine::{go, handler::Handler as _};
+use algoroutine::{go, handler::Consumer};
 
 fn main() {
     let logic = #[coroutine]
@@ -33,7 +33,7 @@ fn main() {
     };
 
     let mut handler = Handler::new();
-    let ans = handler.handle((), logic);
+    let ans = handler.consume(logic, ());
     dbg!(ans);
 }
 
@@ -150,13 +150,14 @@ impl<I> Handler<I, Effect> {
     }
 }
 
-impl<I, F> algoroutine::handler::Handler<I, F> for Handler<I, Effect>
+impl<I> algoroutine::handler::Consumer<Effect, I, ()> for Handler<I, Effect>
 where
-    F: Coroutine<I, Yield = Effect, Return = ()> + 'static,
-    F::Return: From<()>,
     I: From<()>,
 {
-    fn handle(&mut self, _: I, continuation: F) -> F::Return {
+    fn consume<F>(&mut self, continuation: F, _: I) -> F::Return
+    where
+        F: Coroutine<I, Yield = Effect, Return = ()> + 'static,
+    {
         let task = Task {
             finished: Arc::new(AtomicU8::new(0)),
             continuation: Box::pin(continuation),

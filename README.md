@@ -11,6 +11,9 @@ Therefore we need nightly compiler to transform code.
 - `Coroutine.map` to map results.
 - `Coroutine.and_then` to chain operations.
 
+### Handler
+Currently handlers can only be built by hand. There's no easy way to combine.
+
 ## Example
 ### Logging and mutable states
 ```rust

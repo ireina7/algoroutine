@@ -5,9 +5,13 @@
 use std::{
     marker::PhantomData,
     ops::{Coroutine, CoroutineState},
+    pin::Pin,
 };
 
-use algoroutine::{go, handler::Handler as _};
+use algoroutine::{
+    go,
+    handler::{Consumer, OneStep, SyncConsumer},
+};
 
 fn main() {
     let prepare = #[coroutine]
@@ -31,8 +35,9 @@ fn main() {
         return res;
     };
 
-    let mut handler: Handler<Option<i32>> = Handler::new();
-    let ans = handler.handle(None, logic);
+    let handler: Handler<Option<i32>> = Handler::new();
+    let mut consumer = SyncConsumer::from(handler);
+    let ans = consumer.consume(logic, None);
     dbg!(ans);
 }
 
@@ -98,46 +103,29 @@ impl<S> Project<S> for Option<S> {
     }
 }
 
-impl<F, I> algoroutine::handler::Handler<I, F> for Handler<I>
+impl<I> algoroutine::handler::Step<Effect<i32>, I, ResultCode> for Handler<I>
 where
-    F: Coroutine<I, Yield = Effect<i32>>,
-    F::Return: From<Option<i32>>,
     I: From<Option<i32>> + Project<i32>,
 {
-    fn handle(&mut self, mut pre: I, continuation: F) -> F::Return {
-        let mut state: Option<CoroutineState<F::Yield, F::Return>> = None;
+    fn step<F>(&mut self, continuation: Pin<&mut F>, pre: I) -> OneStep<I, ResultCode>
+    where
+        F: Coroutine<I, Yield = Effect<i32>, Return = ResultCode>,
+    {
         let mut pinned = Box::pin(continuation);
-        loop {
-            match state {
-                None => {
-                    state = Some(pinned.as_mut().resume(I::from(None)));
-                    continue;
-                }
-                Some(CoroutineState::Complete(n)) => break n,
-                Some(CoroutineState::Yielded(Effect::Log(Log(msg)))) => match pre.project() {
-                    Some(0) | None => {
-                        println!("{msg}?");
-                        let step = pinned.as_mut().resume(Some(0).into());
-                        state = Some(step);
-                        pre = Some(0).into();
-                        continue;
-                    }
-                    Some(n) => break F::Return::from(Some(n)),
-                },
-                Some(CoroutineState::Yielded(Effect::State(s))) => match s {
-                    State::Get => {
-                        let step = pinned.as_mut().resume(self.state.clone().into());
-                        state = Some(step);
-                        continue;
-                    }
-                    State::Set(s) => {
-                        self.state = s;
-                        let step = pinned.as_mut().resume(None.into());
-                        state = Some(step);
-                        continue;
-                    }
-                },
+        let state = pinned.as_mut().resume(pre);
+        match state {
+            CoroutineState::Complete(n) => OneStep::Return(n),
+            CoroutineState::Yielded(Effect::Log(Log(msg))) => {
+                println!("{msg}?");
+                OneStep::Yield(I::from(Some(0)))
             }
+            CoroutineState::Yielded(Effect::State(s)) => match s {
+                State::Get => OneStep::Yield(I::from(self.state.clone())),
+                State::Set(s) => {
+                    self.state = s;
+                    OneStep::Yield(I::from(None))
+                }
+            },
         }
     }
 }
