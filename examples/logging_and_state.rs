@@ -10,7 +10,7 @@ use std::{
 
 use algoroutine::{
     go,
-    handler::{Consumer, OneStep, SyncConsumer},
+    handler::{self, Consumer, OneStep, SyncConsumer},
 };
 
 fn main() {
@@ -103,7 +103,7 @@ impl<S> Project<S> for Option<S> {
     }
 }
 
-impl<I> algoroutine::handler::Step<Effect<i32>, I, ResultCode> for Handler<I>
+impl<I> handler::Step<Effect<i32>, I, ResultCode> for Handler<I>
 where
     I: From<Option<i32>> + Project<i32>,
 {

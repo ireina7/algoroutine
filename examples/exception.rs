@@ -8,8 +8,8 @@ use std::{
 };
 
 use algoroutine::{
-    go,
-    handler::{Consumer, OneStep, SyncConsumer},
+    effect, go,
+    handler::{self, Consumer, OneStep, SyncConsumer},
 };
 
 fn main() {
@@ -77,7 +77,7 @@ impl From<Context> for (i32, i32) {
     }
 }
 
-impl<R> algoroutine::handler::Step<Exception, R, i32> for ExceptionHandler
+impl<R> handler::Step<Exception, R, i32> for ExceptionHandler
 where
     R: From<Option<(i32, i32)>>,
 {
@@ -93,6 +93,26 @@ where
                 eprintln!("Exception: {}", msg);
                 OneStep::Return(-1) // early stop
             }
+        }
+    }
+}
+
+impl<I, R> handler::Handler<Exception, I, R> for ExceptionHandler
+where
+    R: From<i32>,
+{
+    fn handle<F, Left>(
+        Exception::Raise(msg): Exception,
+        _: Pin<&mut F>,
+    ) -> impl Coroutine<I, Yield = Left, Return = F::Return>
+    where
+        F: Coroutine<I, Return = R>,
+        F::Yield: effect::View<Exception, Left>,
+    {
+        #[coroutine]
+        static move |_: I| {
+            eprintln!("Exception: {}", msg);
+            return R::from(-1);
         }
     }
 }

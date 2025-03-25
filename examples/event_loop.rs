@@ -14,7 +14,10 @@ use std::{
     time,
 };
 
-use algoroutine::{go, handler::Consumer};
+use algoroutine::{
+    go,
+    handler::{self, Consumer},
+};
 
 fn main() {
     let logic = #[coroutine]
@@ -150,7 +153,7 @@ impl<I> Handler<I, Effect> {
     }
 }
 
-impl<I> algoroutine::handler::Consumer<Effect, I, ()> for Handler<I, Effect>
+impl<I> handler::Consumer<Effect, I, ()> for Handler<I, Effect>
 where
     I: From<()>,
 {
