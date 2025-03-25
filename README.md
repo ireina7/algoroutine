@@ -87,11 +87,14 @@ let logic = #[coroutine]
 See [examples/event_loop](./examples/event_loop.rs) for details.
 
 
-
 ## Fun facts
 - `goroutine` and `go` syntax is cool (but golang's type system is terrible)
 - `algebraic effect` is cool
 - `algebraic goroutine (algoroutine)` is probably bad ;)
+
+## Limitation
+- Current API only permits `'static` coroutines. 
+    Once cannot borrow data outside coroutine. If you have to, consider using `move` and more data structures.
 
 ## TODO
 - [ ] Macros for declare effect types

@@ -17,7 +17,7 @@ pub enum OneStep<I, R> {
     Yield(I),
 }
 
-/// Consume whe whole coroutine until finished
+/// Consume the whole coroutine until finished
 /// Most recommended!
 pub trait Consumer<E, I, R> {
     fn consume<F>(&mut self, continuation: F, arg: I) -> F::Return
