@@ -38,7 +38,7 @@ let logic = #[coroutine] |_: Option<i32>| {
 
 // Now we can use different ways to interpret `Log` and `State` effects!
 let mut handler: Handler<Option<i32>> = Handler::new();
-let ans = handler.handle(None, logic);
+let ans = handler.handle(logic, None);
 dbg!(ans);
 ```
 To inject effects, we don't use `coproduct`, just `From`!
@@ -64,7 +64,7 @@ let logic = #[coroutine]
 };
 
 let mut handler = ExceptionHandler::new();
-let ans = handler.handle(Context::None, logic);
+let ans = handler.handle(logic, Context::None);
 dbg!(ans);
 ```
 See [examples/exception](./examples/exception.rs) for details.
