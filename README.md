@@ -12,7 +12,7 @@ Therefore we need nightly compiler to transform code.
 - `Coroutine.and_then` to chain operations.
 
 ### Handler
-Currently handlers can only be built by hand. There's no easy way to combine.
+Currently handlers can only be built by hand. There's no easy way to combine yet.
 
 ## Example
 ### Logging and mutable states
